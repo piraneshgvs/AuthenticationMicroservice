@@ -17,6 +17,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -29,6 +30,9 @@ import com.cognizant.authentication.config.JwtTokenUtil;
 import com.cognizant.authentication.model.JwtRequest;
 import com.cognizant.authentication.model.JwtResponse;
 import com.cognizant.authentication.service.JwtUserDetailsService;
+import com.cognizant.authenticationo.exception.UnauthorizedLogin;
+
+import feign.FeignException.Unauthorized;
 
 
 
@@ -48,12 +52,12 @@ public class AuthenticationController {
 	@Autowired
 	private JwtUserDetailsService jwtUserDetailsService;
 	
-	
+	@ExceptionHandler(UnauthorizedLogin.class)
 	@RequestMapping(value = "/authenticate", method = RequestMethod.POST)
 	public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest)
 			throws Exception {
 
-		authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
+			authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
 
 		final UserDetails userDetails = jwtInMemoryUserDetailsService
 				.loadUserByUsername(authenticationRequest.getUsername());
@@ -80,13 +84,15 @@ public class AuthenticationController {
 	@GetMapping("/validate")
 	public ResponseEntity<String> validateToken(@RequestHeader(name="Authorization", required = true) String token){
 		System.out.println("Inside validate token");
-		String jwtToken = token.substring(7);
+		String jwtToken = token.substring(14,190);
+		System.out.println(jwtToken);
 		String username = jwtTokenUtil.getUsernameFromToken(jwtToken);
 		if(username!=null) {
 			UserDetails userDetails = this.jwtUserDetailsService.loadUserByUsername(username);
 			
 			try{
 				if(jwtTokenUtil.validateToken(jwtToken, userDetails)) {
+				System.out.println("Valid token");
 				return new ResponseEntity<String>("Valid Token", HttpStatus.OK);
 				}
 			}
