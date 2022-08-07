@@ -7,8 +7,11 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import org.springframework.stereotype.Component;
+
 @Entity
 @Table(name="USER_DETAILS")
+@Component
 public class UserInformation {
 	
 	@Id
@@ -17,7 +20,7 @@ public class UserInformation {
 	private String name;
 	private String password;
 	private String userName;
-	private String emailId;
+	private String contactNumber;
 	public Long getId() {
 		return id;
 	}
@@ -42,29 +45,31 @@ public class UserInformation {
 	public void setUserName(String userName) {
 		this.userName = userName;
 	}
-	public String getEmailId() {
-		return emailId;
+	public String getContactNumber() {
+		return contactNumber;
 	}
-	public void setEmailId(String emailId) {
-		this.emailId = emailId;
+	public void setContactNumber(String contactNumber) {
+		this.contactNumber = contactNumber;
 	}
 	@Override
 	public String toString() {
 		return "UserInformation [id=" + id + ", name=" + name + ", password=" + password + ", userName=" + userName
-				+ ", emailId=" + emailId + "]";
+				+ ", contactNumber=" + contactNumber + "]";
 	}
-	public UserInformation(Long id, String name, String password, String userName, String emailId) {
+	public UserInformation(Long id, String name, String password, String userName, String contactNumber) {
 		super();
 		this.id = id;
 		this.name = name;
 		this.password = password;
 		this.userName = userName;
-		this.emailId = emailId;
+		this.contactNumber = contactNumber;
 	}
 	public UserInformation() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
+	
+	
 	
 	
 	

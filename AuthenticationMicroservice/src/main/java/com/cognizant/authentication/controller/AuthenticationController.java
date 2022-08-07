@@ -6,16 +6,13 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,8 +24,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cognizant.authentication.config.JwtTokenUtil;
+import com.cognizant.authentication.entity.UserInformation;
 import com.cognizant.authentication.model.JwtRequest;
 import com.cognizant.authentication.model.JwtResponse;
+import com.cognizant.authentication.repository.UserRepository;
 import com.cognizant.authentication.service.JwtUserDetailsService;
 import com.cognizant.authenticationo.exception.UnauthorizedLogin;
 
@@ -52,6 +51,9 @@ public class AuthenticationController {
 	@Autowired
 	private JwtUserDetailsService jwtUserDetailsService;
 	
+	@Autowired
+	private UserRepository userRepository;
+	
 	@ExceptionHandler(UnauthorizedLogin.class)
 	@RequestMapping(value = "/authenticate", method = RequestMethod.POST)
 	public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest)
@@ -61,10 +63,12 @@ public class AuthenticationController {
 
 		final UserDetails userDetails = jwtInMemoryUserDetailsService
 				.loadUserByUsername(authenticationRequest.getUsername());
+		UserInformation userInformation = userRepository.findByUserName(authenticationRequest.getUsername());
 
 		final String token = jwtTokenUtil.generateToken(userDetails);
+		System.out.println("Inside authenticate "+token);
 
-		return ResponseEntity.ok(new JwtResponse(token));
+		return ResponseEntity.ok(new JwtResponse(token,userInformation.getContactNumber()));
 	}
 
 	private void authenticate(String username, String password) throws Exception {
@@ -84,8 +88,8 @@ public class AuthenticationController {
 	@GetMapping("/validate")
 	public ResponseEntity<String> validateToken(@RequestHeader(name="Authorization", required = true) String token){
 		System.out.println("Inside validate token");
-		String jwtToken = token.substring(14,190);
-		System.out.println(jwtToken);
+		String jwtToken = token.substring(8,token.length()-1);
+		//System.out.println(jwtToken);
 		String username = jwtTokenUtil.getUsernameFromToken(jwtToken);
 		if(username!=null) {
 			UserDetails userDetails = this.jwtUserDetailsService.loadUserByUsername(username);
