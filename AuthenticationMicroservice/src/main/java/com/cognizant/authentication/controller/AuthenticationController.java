@@ -29,7 +29,7 @@ import com.cognizant.authentication.model.JwtRequest;
 import com.cognizant.authentication.model.JwtResponse;
 import com.cognizant.authentication.repository.UserRepository;
 import com.cognizant.authentication.service.JwtUserDetailsService;
-import com.cognizant.authenticationo.exception.UnauthorizedLogin;
+import com.cognizant.authenticationo.exception.UnauthorizedException;
 
 import feign.FeignException.Unauthorized;
 
@@ -54,10 +54,10 @@ public class AuthenticationController {
 	@Autowired
 	private UserRepository userRepository;
 	
-	@ExceptionHandler(UnauthorizedLogin.class)
+	@ExceptionHandler(UnauthorizedException.class)
 	@RequestMapping(value = "/authenticate", method = RequestMethod.POST)
 	public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest)
-			throws Exception {
+			throws  Exception {
 
 			authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
 
