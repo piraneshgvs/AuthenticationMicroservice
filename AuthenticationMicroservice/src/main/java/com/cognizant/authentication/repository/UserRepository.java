@@ -10,5 +10,9 @@ import com.cognizant.authentication.entity.UserInformation;
 public interface UserRepository extends JpaRepository<UserInformation, Long> {
 	
 	UserInformation findByUserName(String userName);
+	
+	UserInformation findByContactNumber(String contactNumber);
+	
+	UserInformation findByEmailId(String emailId);
 
 }

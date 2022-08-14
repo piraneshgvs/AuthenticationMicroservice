@@ -3,6 +3,7 @@ package com.cognizant.authentication.controller;
 import java.util.Objects;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,8 +29,10 @@ import com.cognizant.authentication.config.JwtTokenUtil;
 import com.cognizant.authentication.entity.UserInformation;
 import com.cognizant.authentication.model.JwtRequest;
 import com.cognizant.authentication.model.JwtResponse;
+import com.cognizant.authentication.model.Messenger;
 import com.cognizant.authentication.repository.UserRepository;
 import com.cognizant.authentication.service.JwtUserDetailsService;
+import com.cognizant.authentication.service.RegisterService;
 import com.cognizant.authenticationo.exception.UnauthorizedException;
 
 import feign.FeignException.Unauthorized;
@@ -54,6 +58,12 @@ public class AuthenticationController {
 	@Autowired
 	private UserRepository userRepository;
 	
+	@Autowired 
+	private RegisterService registerService;
+	
+	@Autowired
+	private Messenger messenger;
+	
 	@ExceptionHandler(UnauthorizedException.class)
 	@RequestMapping(value = "/authenticate", method = RequestMethod.POST)
 	public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest)
@@ -69,6 +79,12 @@ public class AuthenticationController {
 		System.out.println("Inside authenticate "+token);
 
 		return ResponseEntity.ok(new JwtResponse(token,userInformation.getContactNumber()));
+	}
+	
+	@PostMapping(value="/register")
+	public ResponseEntity<?> createUser(@Valid @RequestBody UserInformation userInformation) throws Exception{
+		messenger.setMessage(registerService.createUser(userInformation));
+		return new ResponseEntity<>(messenger,HttpStatus.OK);
 	}
 
 	private void authenticate(String username, String password) throws Exception {
