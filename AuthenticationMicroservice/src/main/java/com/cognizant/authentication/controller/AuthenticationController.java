@@ -1,10 +1,11 @@
 package com.cognizant.authentication.controller;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Objects;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +36,7 @@ import com.cognizant.authentication.service.JwtUserDetailsService;
 import com.cognizant.authentication.service.RegisterService;
 import com.cognizant.authenticationo.exception.UnauthorizedException;
 
+import org.slf4j.Logger;
 import feign.FeignException.Unauthorized;
 
 
@@ -64,6 +66,8 @@ public class AuthenticationController {
 	@Autowired
 	private Messenger messenger;
 	
+	private static final Logger logger = LoggerFactory.getLogger(AuthenticationController.class);
+	
 	@ExceptionHandler(UnauthorizedException.class)
 	@RequestMapping(value = "/authenticate", method = RequestMethod.POST)
 	public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest)
@@ -76,7 +80,8 @@ public class AuthenticationController {
 		UserInformation userInformation = userRepository.findByUserName(authenticationRequest.getUsername());
 
 		final String token = jwtTokenUtil.generateToken(userDetails);
-		System.out.println("Inside authenticate "+token);
+		//System.out.println("Inside authenticate "+token);
+		logger.info("Token : "+token);
 
 		return ResponseEntity.ok(new JwtResponse(token,userInformation.getContactNumber()));
 	}
@@ -103,7 +108,6 @@ public class AuthenticationController {
 	
 	@GetMapping("/validate")
 	public ResponseEntity<String> validateToken(@RequestHeader(name="Authorization", required = true) String token){
-		System.out.println("Inside validate token");
 		String jwtToken = token.substring(8,token.length()-1);
 		//System.out.println(jwtToken);
 		String username = jwtTokenUtil.getUsernameFromToken(jwtToken);
@@ -112,7 +116,8 @@ public class AuthenticationController {
 			
 			try{
 				if(jwtTokenUtil.validateToken(jwtToken, userDetails)) {
-				System.out.println("Valid token");
+				//System.out.println("Valid token");
+					logger.info("Valid token");
 				return new ResponseEntity<String>("Valid Token", HttpStatus.OK);
 				}
 			}
