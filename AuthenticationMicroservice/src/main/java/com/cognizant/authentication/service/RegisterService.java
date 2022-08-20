@@ -13,7 +13,6 @@ public class RegisterService {
 	UserRepository userRepository;
 	
 	public String createUser(UserInformation userInformation) {
-		int flag=0;
 		if(checkForUser(userInformation.getUserName())) {
 			return "User Name already exsist";
 		}

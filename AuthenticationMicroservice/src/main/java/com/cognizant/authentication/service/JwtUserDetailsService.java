@@ -27,7 +27,6 @@ public class JwtUserDetailsService implements UserDetailsService {
 		BCryptPasswordEncoder bcrypto = new BCryptPasswordEncoder();
 		
 		if (username!=null) {
-			//System.out.println(userInformation.getPassword());
 			return new User(userInformation.getUserName(), bcrypto.encode(userInformation.getPassword()) ,new ArrayList<>());
 		} else {
 			throw new UsernameNotFoundException("User not found with username: " + username);

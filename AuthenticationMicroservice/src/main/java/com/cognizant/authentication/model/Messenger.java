@@ -15,6 +15,5 @@ public class Messenger {
 		this.message = message;
 	}
 	
-	
 
 }

@@ -5,9 +5,8 @@ import org.springframework.http.HttpStatus;
 
 @ResponseStatus(HttpStatus.FORBIDDEN)
 public class UnauthorizedException extends RuntimeException {
-    /**
-	 * 
-	 */
+    
+	
 	private static final long serialVersionUID = 1L;
 
 	public UnauthorizedException(String msg) {

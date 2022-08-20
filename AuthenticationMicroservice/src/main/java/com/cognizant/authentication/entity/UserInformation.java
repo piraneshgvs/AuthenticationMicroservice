@@ -10,9 +10,11 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.Email;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 
+import org.hibernate.validator.constraints.Length;
 import org.springframework.stereotype.Component;
 
 @Entity
@@ -29,6 +31,7 @@ public class UserInformation implements Serializable {
 	@NotBlank(message="Name cannot be blank")
 	private String name;
 	@NotBlank(message="password field cannot be blank")
+	@Length(min = 5,max = 15)
 	private String password;
 	@NotBlank(message="userName cannot be blank")
 	private String userName;
@@ -96,12 +99,7 @@ public class UserInformation implements Serializable {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-	
-	
-	
-	
-	
-	
+
 	
 
 }

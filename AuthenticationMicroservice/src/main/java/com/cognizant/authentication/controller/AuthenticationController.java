@@ -1,6 +1,5 @@
 package com.cognizant.authentication.controller;
 
-import java.lang.invoke.MethodHandles;
 import java.util.Objects;
 
 import javax.validation.Valid;
@@ -22,8 +21,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cognizant.authentication.config.JwtTokenUtil;
@@ -37,12 +34,11 @@ import com.cognizant.authentication.service.RegisterService;
 import com.cognizant.authenticationo.exception.UnauthorizedException;
 
 import org.slf4j.Logger;
-import feign.FeignException.Unauthorized;
-
 
 
 @CrossOrigin
 @RestController
+@RequestMapping("/api/auth")
 public class AuthenticationController {
 	
 	@Autowired
@@ -69,9 +65,8 @@ public class AuthenticationController {
 	private static final Logger logger = LoggerFactory.getLogger(AuthenticationController.class);
 	
 	@ExceptionHandler(UnauthorizedException.class)
-	@RequestMapping(value = "/authenticate", method = RequestMethod.POST)
-	public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest)
-			throws  Exception {
+	@PostMapping(value = "/authenticate")
+	public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest)throws  Exception {
 
 			authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
 
@@ -80,10 +75,9 @@ public class AuthenticationController {
 		UserInformation userInformation = userRepository.findByUserName(authenticationRequest.getUsername());
 
 		final String token = jwtTokenUtil.generateToken(userDetails);
-		//System.out.println("Inside authenticate "+token);
 		logger.info("Token : "+token);
 
-		return ResponseEntity.ok(new JwtResponse(token,userInformation.getContactNumber()));
+		return new ResponseEntity<>(new JwtResponse(token,userInformation.getContactNumber()),HttpStatus.OK);
 	}
 	
 	@PostMapping(value="/register")
@@ -109,14 +103,12 @@ public class AuthenticationController {
 	@GetMapping("/validate")
 	public ResponseEntity<String> validateToken(@RequestHeader(name="Authorization", required = true) String token){
 		String jwtToken = token.substring(8,token.length()-1);
-		//System.out.println(jwtToken);
 		String username = jwtTokenUtil.getUsernameFromToken(jwtToken);
 		if(username!=null) {
 			UserDetails userDetails = this.jwtUserDetailsService.loadUserByUsername(username);
 			
 			try{
 				if(jwtTokenUtil.validateToken(jwtToken, userDetails)) {
-				//System.out.println("Valid token");
 					logger.info("Valid token");
 				return new ResponseEntity<String>("Valid Token", HttpStatus.OK);
 				}
